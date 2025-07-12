@@ -4,6 +4,17 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { MODES, radius, centerX, centerY } from '../utils/mode/constants';
 
+// Import modules
+import FinancesScreen from '../modules/mode/finances';
+import WorkoutScreen from '../modules/mode/workout';
+import CookingScreen from '../modules/mode/cooking';
+
+const MODE_COMPONENTS = {
+  finances: FinancesScreen,
+  workout: WorkoutScreen,
+  cooking: CookingScreen,
+};
+
 export default function ModeScreen({ navigation }) {
   const [showMenu, setShowMenu] = useState(false);
   const [defaultMode, setDefaultMode] = useState(null);
@@ -43,13 +54,16 @@ export default function ModeScreen({ navigation }) {
     }).start();
   };
 
+  const SelectedModule =
+    defaultMode && MODE_COMPONENTS[defaultMode]
+      ? MODE_COMPONENTS[defaultMode]
+      : null;
+
   return (
     <View style={styles.container}>
-      {defaultMode && !showMenu ? (
+      {defaultMode && !showMenu && SelectedModule ? (
         <>
-          <Text style={styles.modeText}>
-            {MODES.find(m => m.key === defaultMode)?.label} Mode
-          </Text>
+          <SelectedModule />
           <TouchableOpacity onPress={changeMode} style={styles.changeBtn}>
             <Text style={{ color: 'white' }}>Change Mode</Text>
           </TouchableOpacity>
@@ -62,8 +76,8 @@ export default function ModeScreen({ navigation }) {
           <View style={styles.semicircle} />
           {/* The menu buttons */}
           {MODES.map((mode, i) => {
-            const angle = (Math.PI / (MODES.length - 1)) * i - Math.PI; // Distribute evenly across semi-circle
-            const x = centerX + radius * Math.cos(angle) - 40; // 40 is half button size
+            const angle = (Math.PI / (MODES.length - 1)) * i - Math.PI;
+            const x = centerX + radius * Math.cos(angle) - 40;
             const y = centerY + radius * Math.sin(angle) - 40;
             return (
               <TouchableOpacity
@@ -89,17 +103,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  modeText: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    marginBottom: 30,
-    marginTop: -60,
-  },
   changeBtn: {
     backgroundColor: '#007AFF',
     paddingVertical: 10,
     paddingHorizontal: 24,
     borderRadius: 22,
+    marginTop: 16,
   },
   semicircleContainer: {
     position: 'absolute',
